@@ -1,4 +1,4 @@
-// models/Subscription.js
+
 const mongoose = require('mongoose');
 
 const subscriptionSchema = new mongoose.Schema({
@@ -25,7 +25,7 @@ const subscriptionSchema = new mongoose.Schema({
   },
   stripeCustomerId: {
     type: String
-  },
+  },// models/Subscription.js
   stripeSubscriptionId: {
     type: String
   }
