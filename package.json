@@ -1,5 +1,9 @@
 {
-  "dependencies": {
-    "react-scroll": "^1.9.3"
+  "name": "echoes-app",
+  "version": "1.0.0",
+  "scripts": {
+    "start:server": "cd server && npm start",
+    "start:client": "cd client && npm start",
+    "install:all": "cd server && npm install && cd ../client && npm install"
   }
 }
