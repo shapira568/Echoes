@@ -1,7 +1,6 @@
-const { Sequelize } = require('sequelize');
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-const pg = require('pg');
-pg.defaults.ssl = { rejectUnauthorized: false };
+const { Sequelize } = require('sequelize');
 
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialect: 'postgres',
