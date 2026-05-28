@@ -1,34 +1,37 @@
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
 
-const mongoose = require('mongoose');
-
-const subscriptionSchema = new mongoose.Schema({
+const Subscription = sequelize.define('Subscription', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    type: DataTypes.INTEGER,
+    allowNull: false
   },
   plan: {
-    type: String,
-    enum: ['free', 'premium', 'pro'],
-    default: 'free'
+    type: DataTypes.ENUM('free', 'premium', 'pro'),
+    defaultValue: 'free'
   },
   startDate: {
-    type: Date,
-    default: Date.now
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
   },
   endDate: {
-    type: Date
+    type: DataTypes.DATE
   },
   isActive: {
-    type: Boolean,
-    default: true
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
   },
   stripeCustomerId: {
-    type: String
-  },// models/Subscription.js
+    type: DataTypes.STRING
+  },
   stripeSubscriptionId: {
-    type: String
+    type: DataTypes.STRING
   }
-});
+}, { timestamps: true });
 
-module.exports = mongoose.model('Subscription', subscriptionSchema);
+module.exports = Subscription;

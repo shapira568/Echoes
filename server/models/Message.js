@@ -1,60 +1,55 @@
-// models/Message.js - This file should ONLY contain the model definition
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
 
-const messageSchema = new mongoose.Schema({
+const Message = sequelize.define('Message', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    type: DataTypes.INTEGER,
+    allowNull: false
   },
   content: {
-    type: String,
-    required: true
+    type: DataTypes.TEXT,
+    allowNull: false
   },
   messageType: {
-    type: String,
-    enum: ['text', 'voice', 'video'],
-    default: 'text'
+    type: DataTypes.ENUM('text', 'voice', 'video'),
+    defaultValue: 'text'
   },
   deliveryMethod: {
-    type: String,
-    enum: ['date', 'event', 'emotion'],
-    required: true
+    type: DataTypes.ENUM('date', 'event', 'emotion'),
+    allowNull: false
   },
   deliveryDate: {
-    type: Date
+    type: DataTypes.DATE
   },
   lifeEvent: {
-    type: String
+    type: DataTypes.STRING
   },
   emotionalState: {
-    type: String
+    type: DataTypes.STRING
   },
   recipient: {
-    type: String,
-    required: true
+    type: DataTypes.STRING,
+    allowNull: false
   },
   status: {
-    type: String,
-    enum: ['pending', 'delivered', 'draft'],
-    default: 'pending'
+    type: DataTypes.ENUM('pending', 'delivered', 'draft'),
+    defaultValue: 'pending'
   },
   aiEnhanced: {
-    type: Boolean,
-    default: false
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   },
   mediaUrl: {
-    type: String
+    type: DataTypes.STRING
   },
   mediaType: {
-    type: String,
-    enum: ['audio', 'video']
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
+    type: DataTypes.ENUM('audio', 'video')
   }
-});
+}, { timestamps: true });
 
-// Export the model correctly
-module.exports = mongoose.model('Message', messageSchema);
+module.exports = Message;
