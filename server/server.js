@@ -76,6 +76,7 @@ Reminder.belongsTo(Medication, { foreignKey: 'medicationId', as: 'medication' })
 // ==================== ✅ EXPRESS APP SETUP ====================
 const app = express();
 const PORT = process.env.PORT || 5000;
+let dbReady = false;
 
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:3000',
@@ -86,7 +87,11 @@ app.use(express.urlencoded({ limit: '200mb', extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get('/', (req, res) => {
-  res.json({ message: 'Echoes API is running' });
+  res.json({ message: 'Echoes API is running', database: dbReady ? 'ready' : 'starting' });
+});
+
+app.get('/api/health', (req, res) => {
+  res.json({ ok: true, database: dbReady ? 'ready' : 'starting' });
 });
 
 // ==================== ✅ EXISTING ROUTES ====================
@@ -144,18 +149,23 @@ app.use('/api/reminders', reminderRoutes);
 // 🔼🔼🔼 END NEW ROUTES 🔼🔼🔼
 
 // ==================== ✅ START SERVER ====================
-sequelize.sync({ alter: true })
-  .then(() => {
+app.listen(PORT, () => {
+  console.log(`🚀 Server is running on port ${PORT}`);
+  console.log(`🧠 Mental Health features enabled`);
+});
+
+const syncDatabase = async () => {
+  try {
+    await sequelize.authenticate();
+    await sequelize.sync({ alter: process.env.DB_SYNC_ALTER === 'true' });
+    dbReady = true;
     console.log('✅ PostgreSQL connected and tables synced');
     startDeliveryCron();
-    app.listen(PORT, () => {
-      console.log(`🚀 Server is running on port ${PORT}`);
-      console.log(`🧠 Mental Health features enabled`);
-    });
-  })
-  .catch(err => {
+  } catch (err) {
     console.error('❌ PostgreSQL connection failed:', err.message);
-    process.exit(1);
-  });
+  }
+};
+
+syncDatabase();
 
 module.exports = app;
