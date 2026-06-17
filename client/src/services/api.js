@@ -20,7 +20,8 @@ api.interceptors.request.use((config) => {
 // Auth endpoints
 export const authAPI = {
   register: (userData) => api.post('/users/register', userData),
-  login: (userData) => api.post('/users/login', userData)
+  login: (userData) => api.post('/users/login', userData),
+  googleAuth: (googleData) => api.post('/users/google', googleData)
 };
 
 // Message endpoints

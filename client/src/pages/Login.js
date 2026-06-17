@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
 import { authAPI } from '../services/api';
+import GoogleAuthButton from '../components/GoogleAuthButton';
 
 const LoginContainer = styled.div`
   min-height: 100vh;
@@ -235,6 +236,8 @@ function Login() {
         <Button type="submit" disabled={loading}>
           {loading ? <LoadingSpinner /> : 'Log In'}
         </Button>
+
+        <GoogleAuthButton label="signin_with" onError={setError} />
         
         <Links>
           <p>Don't have an account? <Link to="/signup">Sign up</Link></p>

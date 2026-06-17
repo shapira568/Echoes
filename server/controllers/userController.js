@@ -1,6 +1,10 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const { OAuth2Client } = require('google-auth-library');
 const { recordAudit } = require('../utils/audit');
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'echoes_secret', {
@@ -51,5 +55,50 @@ exports.loginUser = async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+exports.googleAuth = async (req, res) => {
+  try {
+    const { credential } = req.body;
+
+    if (!process.env.GOOGLE_CLIENT_ID) {
+      return res.status(503).json({ message: 'Google sign-in is not configured yet.' });
+    }
+
+    if (!credential) {
+      return res.status(400).json({ message: 'Google credential is required.' });
+    }
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID
+    });
+    const payload = ticket.getPayload();
+
+    if (!payload?.email || !payload.email_verified) {
+      return res.status(401).json({ message: 'Google account email could not be verified.' });
+    }
+
+    const [user, created] = await User.findOrCreate({
+      where: { email: payload.email },
+      defaults: {
+        name: payload.name || payload.email.split('@')[0],
+        email: payload.email,
+        password: crypto.randomBytes(24).toString('hex')
+      }
+    });
+
+    await recordAudit(req, created ? 'google_user_registered' : 'google_user_login', user.id);
+
+    res.json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      token: generateToken(user.id)
+    });
+  } catch (error) {
+    res.status(401).json({ message: 'Google sign-in failed. Please try again.' });
   }
 };

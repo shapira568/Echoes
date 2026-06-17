@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
 import { authAPI } from '../services/api';
+import GoogleAuthButton from '../components/GoogleAuthButton';
 
 const SignupContainer = styled.div`
   min-height: 100vh;
@@ -195,6 +196,8 @@ function Signup() {
         </FormGroup>
         
         <Button type="submit">Sign Up</Button>
+
+        <GoogleAuthButton label="signup_with" onError={setError} />
         
         <Links>
           <p>Already have an account? <Link to="/login">Log in</Link></p>
