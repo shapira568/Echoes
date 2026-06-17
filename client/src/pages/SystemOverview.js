@@ -136,36 +136,6 @@ const Entity = styled.article`
   }
 `;
 
-const UseCaseList = styled.div`
-  display: grid;
-  gap: 0.55rem;
-`;
-
-const Pill = styled.div`
-  background: ${({ $admin }) => ($admin ? '#fff3d8' : '#eaf7e6')};
-  border: 1px solid ${({ $admin }) => ($admin ? '#e8c16f' : '#abd79f')};
-  border-radius: 999px;
-  color: #28445f;
-  font-weight: 800;
-  padding: 0.55rem 0.75rem;
-`;
-
-const Flow = styled.div`
-  display: grid;
-  gap: 0.55rem;
-`;
-
-const FlowStep = styled.div`
-  background: ${({ $decision, $danger }) => ($danger ? '#ffe3e5' : $decision ? '#fff4d9' : '#eaf3ff')};
-  border: 1px solid ${({ $decision, $danger }) => ($danger ? '#ec9ca4' : $decision ? '#e2bc65' : '#afcae8')};
-  border-radius: ${({ $decision }) => ($decision ? '0' : '8px')};
-  color: #28445f;
-  font-weight: 800;
-  padding: 0.65rem;
-  text-align: center;
-  transform: ${({ $decision }) => ($decision ? 'skew(-8deg)' : 'none')};
-`;
-
 const Metrics = styled.div`
   display: grid;
   gap: 0.75rem;
@@ -232,6 +202,91 @@ const Card = styled.article`
   strong {
     color: #1f2e44;
     display: block;
+  }
+`;
+
+const StatusRow = styled.div`
+  align-items: center;
+  border-bottom: 1px solid #eef2f7;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  strong {
+    color: #1f2e44;
+  }
+
+  span {
+    color: #607286;
+    font-size: 0.9rem;
+  }
+`;
+
+const Badge = styled.span`
+  background: ${({ $tone }) => ($tone === 'warning' ? '#fff4d8' : $tone === 'muted' ? '#eef2f7' : '#e8f7ee')};
+  border: 1px solid ${({ $tone }) => ($tone === 'warning' ? '#e8c16f' : $tone === 'muted' ? '#d9e2ef' : '#9fd4af')};
+  border-radius: 999px;
+  color: ${({ $tone }) => ($tone === 'warning' ? '#7a560e' : $tone === 'muted' ? '#53677d' : '#1f6b3d')};
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 0.35rem 0.6rem;
+  white-space: nowrap;
+`;
+
+const Workflows = styled.div`
+  display: grid;
+  gap: 0.75rem;
+`;
+
+const Workflow = styled.article`
+  border: 1px solid #d9e2ef;
+  border-radius: 10px;
+  padding: 0.85rem;
+
+  strong {
+    color: #173b76;
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+
+  p {
+    margin: 0;
+  }
+`;
+
+const QueueTable = styled.div`
+  border: 1px solid #d9e2ef;
+  border-radius: 10px;
+  overflow: hidden;
+`;
+
+const QueueRow = styled.div`
+  align-items: center;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 1.5fr 1fr 0.8fr;
+  padding: 0.85rem;
+
+  &:nth-child(odd) {
+    background: #fbfcff;
+  }
+
+  strong {
+    color: #1f2e44;
+  }
+
+  span {
+    color: #607286;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 720px) {
+    grid-template-columns: 1fr;
   }
 `;
 
@@ -339,7 +394,7 @@ function SystemOverview() {
   return (
     <Page>
       <Header>
-        <Brand to="/dashboard">Echoes System Overview</Brand>
+        <Brand to="/dashboard">Echoes Operations Console</Brand>
         <Actions>
           <Button type="button" $secondary onClick={() => navigate('/dashboard')}>User Dashboard</Button>
           <Button type="button" $secondary onClick={() => navigate('/ai-dashboard')}>AI Dashboard</Button>
@@ -349,44 +404,59 @@ function SystemOverview() {
 
       <Grid>
         <Panel>
-          <h1>ER Diagram Coverage</h1>
+          <h1>Platform Health</h1>
+          <StatusRow>
+            <div><strong>Backend API</strong><br /><span>Render service and route layer</span></div>
+            <Badge>Online</Badge>
+          </StatusRow>
+          <StatusRow>
+            <div><strong>PostgreSQL</strong><br /><span>Users, messages, contacts, logs</span></div>
+            <Badge>Ready</Badge>
+          </StatusRow>
+          <StatusRow>
+            <div><strong>Delivery Worker</strong><br /><span>Email, WhatsApp, and SMS schedule checks</span></div>
+            <Badge $tone="warning">Hourly</Badge>
+          </StatusRow>
+          <StatusRow>
+            <div><strong>AI Enhancement</strong><br /><span>OpenAI-backed message refinement</span></div>
+            <Badge $tone={process.env.REACT_APP_API_URL ? 'muted' : 'warning'}>Config dependent</Badge>
+          </StatusRow>
+        </Panel>
+
+        <Panel>
+          <h1>Core Workflows</h1>
+          <Workflows>
+            <Workflow>
+              <strong>Message lifecycle</strong>
+              <p>Create text, audio, or video messages, schedule delivery, then track pending and delivered states.</p>
+            </Workflow>
+            <Workflow>
+              <strong>Wellness workspace</strong>
+              <p>Mood logs, symptoms, journals, triggers, medication, therapy sessions, goals, and reports.</p>
+            </Workflow>
+            <Workflow>
+              <strong>Payments and subscriptions</strong>
+              <p>Paystack checkout with Naira plans and subscription verification after payment.</p>
+            </Workflow>
+            <Workflow>
+              <strong>Admin monitoring</strong>
+              <p>Audit logs, message activity, user totals, legacy contacts, and system status in one place.</p>
+            </Workflow>
+          </Workflows>
+        </Panel>
+
+        <Panel>
+          <h1>Data Model Summary</h1>
           <EntityGrid>
-            <Entity><strong>USERS</strong><ul><li>id PK</li><li>name, email</li><li>password</li><li>role</li></ul></Entity>
-            <Entity $tone="#ffe1e7"><strong>MESSAGES</strong><ul><li>user_id FK</li><li>content_type</li><li>ai_refined</li><li>trigger_type</li><li>delivery_date</li><li>status</li></ul></Entity>
-            <Entity $tone="#f0e8ff"><strong>SUBSCRIPTIONS</strong><ul><li>user_id FK</li><li>plan_type</li><li>status</li><li>start / end dates</li></ul></Entity>
-            <Entity $tone="#fff2c8"><strong>LEGACY_CONTACTS</strong><ul><li>user_id FK</li><li>contact_name</li><li>contact_email</li><li>is_verified</li></ul></Entity>
-            <Entity $tone="#e9f3ff"><strong>AUDIT_LOGS</strong><ul><li>user_id FK</li><li>action</li><li>ip_address</li><li>user_agent</li></ul></Entity>
+            <Entity><strong>Users</strong><ul><li>Authentication and role</li><li>Messages and subscriptions</li></ul></Entity>
+            <Entity $tone="#ffe1e7"><strong>Messages</strong><ul><li>Content, media, trigger</li><li>Delivery channel and status</li></ul></Entity>
+            <Entity $tone="#f0e8ff"><strong>Wellness</strong><ul><li>Mood, symptoms, journals</li><li>Medication, reports, sessions</li></ul></Entity>
+            <Entity $tone="#fff2c8"><strong>Operations</strong><ul><li>Legacy contacts</li><li>Audit logs and subscriptions</li></ul></Entity>
           </EntityGrid>
         </Panel>
 
-        <Panel>
-          <h1>Use Case Coverage</h1>
-          <UseCaseList>
-            {['Register', 'Login', 'Create Message', 'Upload Audio/Video', 'Schedule Delivery', 'Manage Legacy Contacts', 'Receive Messages', 'View Message History', 'Update Profile', 'Make Payment'].map((item) => <Pill key={item}>{item}</Pill>)}
-            {['Manage Users', 'View Logs', 'Monitor System Performance', 'Manage Subscriptions', 'System Settings'].map((item) => <Pill key={item} $admin>{item}</Pill>)}
-          </UseCaseList>
-        </Panel>
-
-        <Panel>
-          <h1>System Flowchart</h1>
-          <Flow>
-            <FlowStep>START</FlowStep>
-            <FlowStep>User Login</FlowStep>
-            <FlowStep $decision>Validate Credentials?</FlowStep>
-            <FlowStep $danger>Access Denied / Log Attempt</FlowStep>
-            <FlowStep>Dashboard</FlowStep>
-            <FlowStep>Create Message</FlowStep>
-            <FlowStep $decision>AI Enhancement Required?</FlowStep>
-            <FlowStep>Set Trigger: Date / Event / Emotion</FlowStep>
-            <FlowStep>Save Pending Message</FlowStep>
-            <FlowStep>Delivery Cron Checks Due Messages</FlowStep>
-            <FlowStep>Send via Email / WhatsApp / SMS</FlowStep>
-            <FlowStep>Update Delivered + Audit Log</FlowStep>
-          </Flow>
-        </Panel>
-
         <Wide>
-          <h1>Admin Dashboard</h1>
+          <h1>Admin Performance</h1>
           <Metrics>
             <Metric><span>Total users</span><strong>{stats.totalUsers}</strong></Metric>
             <Metric><span>Total messages</span><strong>{stats.totalMessages}</strong></Metric>
@@ -401,20 +471,21 @@ function SystemOverview() {
         </Wide>
 
         <Panel>
-          <h1>User Dashboard Mockup</h1>
-          <CardList>
+          <h1>Message Queue</h1>
+          <QueueTable>
             {visibleMessages.slice(0, 4).map((message) => (
-              <Card key={message.id || message._id}>
-                <strong>{message.content}</strong>
-                <p>To: {message.recipient}</p>
-                <p>{message.deliveryMethod} delivery - {message.status}</p>
-              </Card>
+              <QueueRow key={message.id || message._id}>
+                <div><strong>{message.content}</strong><br /><span>To: {message.recipient}</span></div>
+                <span>{message.deliveryMethod || 'date'} delivery</span>
+                <Badge $tone={message.status === 'delivered' ? undefined : 'warning'}>{message.status}</Badge>
+              </QueueRow>
             ))}
-          </CardList>
+          </QueueTable>
         </Panel>
 
         <Panel>
           <h1>Legacy Contacts</h1>
+          <p>Maintain verified recipients who can receive important future messages.</p>
           {notice && <p>{notice}</p>}
           <Form onSubmit={saveContact}>
             <Input required placeholder="Contact name" value={contactForm.contactName} onChange={(event) => setContactForm({ ...contactForm, contactName: event.target.value })} />
@@ -430,7 +501,8 @@ function SystemOverview() {
         </Panel>
 
         <Panel>
-          <h1>Recent Audit Logs</h1>
+          <h1>Audit Trail</h1>
+          <p>Recent security and system events captured from user and message activity.</p>
           <CardList>
             {logs.map((log) => (
               <Card key={log.id}>
