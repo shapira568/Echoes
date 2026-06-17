@@ -821,18 +821,85 @@ function Home() {
   const [activeDemoStep, setActiveDemoStep] = useState(0);
   const demoSteps = [
     {
-      title: 'Create a message',
-      body: 'Write a message, record audio, or upload video for your future self or someone you love.'
+      title: 'Message Scheduling',
+      body: 'Create text, voice, or video messages and schedule them for email, WhatsApp, or SMS delivery.',
+      stats: [
+        ['Messages', '24'],
+        ['Pending', '8'],
+        ['Delivered', '16']
+      ],
+      items: [
+        ['Graduation video message', 'May 20'],
+        ['Birthday voice note', 'Jun 12']
+      ]
     },
     {
-      title: 'Choose the moment',
-      body: 'Schedule delivery by date, life event, or emotional trigger, then pick email, WhatsApp, or SMS.'
+      title: 'Health and Mood Tracking',
+      body: 'Log moods, symptoms, journals, triggers, medication, goals, emergency contacts, sessions, and reports.',
+      stats: [
+        ['Mood logs', '18'],
+        ['Symptoms', '6'],
+        ['Goals', '4']
+      ],
+      items: [
+        ['Mood cataloging and journaling', 'Today'],
+        ['Medication reminder and reports', 'Active']
+      ]
     },
     {
-      title: 'Receive the echo',
-      body: 'Echoes delivers your message with your media attached or linked when the time arrives.'
+      title: 'AI Dashboard',
+      body: 'Review intelligent suggestions, task priorities, deadlines, team workload, and scheduling support.',
+      stats: [
+        ['Suggestions', '12'],
+        ['Tasks', '9'],
+        ['Deadlines', '5']
+      ],
+      items: [
+        ['Smart task prioritization', 'High'],
+        ['Schedule assistant recommendations', 'Ready']
+      ]
+    },
+    {
+      title: 'Emotion Flow',
+      body: 'Track how users feel, add tags, view timeline trends, and flag moments for helpful intervention.',
+      stats: [
+        ['Moods', '10'],
+        ['Tags', '32'],
+        ['Insights', '7']
+      ],
+      items: [
+        ['Happy, stressed, isolated, confident', 'Tracked'],
+        ['Individual and team analytics', 'Live']
+      ]
+    },
+    {
+      title: 'Admin and System Overview',
+      body: 'View users, subscriptions, audit logs, ERD/use-case coverage, flowcharts, and system metrics.',
+      stats: [
+        ['Users', '128'],
+        ['Messages', '532'],
+        ['Logs', '43']
+      ],
+      items: [
+        ['Admin dashboard and audit logs', 'Secure'],
+        ['ERD, use cases, and flowchart', 'Included']
+      ]
+    },
+    {
+      title: 'Naira Subscriptions',
+      body: 'Upgrade through Paystack with plans priced in Naira for a more legitimate local payment flow.',
+      stats: [
+        ['Premium', 'NGN 5k'],
+        ['Pro', 'NGN 15k'],
+        ['Provider', 'Paystack']
+      ],
+      items: [
+        ['Secure payment initialization', 'Paystack'],
+        ['Subscription verification', 'Enabled']
+      ]
     }
   ];
+  const activeDemo = demoSteps[activeDemoStep];
 
   return (
     <HomeContainer>
@@ -893,7 +960,7 @@ function Home() {
             <DemoHeader>
               <div>
                 <h2 id="demo-title">Watch Echoes Demo</h2>
-                <p>A quick preview of creating, scheduling, and receiving a future message.</p>
+                <p>A quick preview of messages, wellness tools, AI, analytics, admin, and subscriptions.</p>
               </div>
               <CloseDemoButton type="button" aria-label="Close demo" onClick={() => setShowDemo(false)}>
                 <i className="fas fa-times"></i>
@@ -910,32 +977,24 @@ function Home() {
                 </DemoToolbar>
                 <DemoDashboard>
                   <DemoStats>
-                    <DemoStat>
-                      <span>Total messages</span>
-                      <strong>24</strong>
-                    </DemoStat>
-                    <DemoStat>
-                      <span>Pending</span>
-                      <strong>8</strong>
-                    </DemoStat>
-                    <DemoStat>
-                      <span>Delivered</span>
-                      <strong>16</strong>
-                    </DemoStat>
+                    {activeDemo.stats.map(([label, value]) => (
+                      <DemoStat key={label}>
+                        <span>{label}</span>
+                        <strong>{value}</strong>
+                      </DemoStat>
+                    ))}
                   </DemoStats>
                   <DemoComposer>
-                    <h3>{demoSteps[activeDemoStep].title}</h3>
-                    <DemoTextarea>{demoSteps[activeDemoStep].body}</DemoTextarea>
+                    <h3>{activeDemo.title}</h3>
+                    <DemoTextarea>{activeDemo.body}</DemoTextarea>
                   </DemoComposer>
                   <DemoTimeline>
-                    <DemoTimelineItem>
-                      <strong>Graduation video message</strong>
-                      <span>May 20</span>
-                    </DemoTimelineItem>
-                    <DemoTimelineItem>
-                      <strong>Birthday voice note</strong>
-                      <span>Jun 12</span>
-                    </DemoTimelineItem>
+                    {activeDemo.items.map(([label, status]) => (
+                      <DemoTimelineItem key={label}>
+                        <strong>{label}</strong>
+                        <span>{status}</span>
+                      </DemoTimelineItem>
+                    ))}
                   </DemoTimeline>
                 </DemoDashboard>
               </DemoScreen>
