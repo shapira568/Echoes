@@ -1,6 +1,6 @@
 // src/App.js
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Navigate, Routes, Route, useLocation } from 'react-router-dom';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -37,6 +37,17 @@ import FreePlan from './pages/FreePlan';
 import PremiumPlan from './pages/PremiumPlan';
 import ProPlan from './pages/ProPlan';
 
+function ProtectedRoute({ children }) {
+  const location = useLocation();
+  const token = localStorage.getItem('token');
+
+  if (!token) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  return children;
+}
+
 function App() {
   return (
     <Router>
@@ -45,11 +56,11 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/mental-health" element={<MentalHealth />} />
-          <Route path="/ai-dashboard" element={<AIDashboard />} />
-          <Route path="/emotion-flow" element={<EmotionFlow />} />
-          <Route path="/system-overview" element={<SystemOverview />} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/mental-health" element={<ProtectedRoute><MentalHealth /></ProtectedRoute>} />
+          <Route path="/ai-dashboard" element={<ProtectedRoute><AIDashboard /></ProtectedRoute>} />
+          <Route path="/emotion-flow" element={<ProtectedRoute><EmotionFlow /></ProtectedRoute>} />
+          <Route path="/system-overview" element={<ProtectedRoute><SystemOverview /></ProtectedRoute>} />
           
           {/* Features */}
           <Route path="/features/text-messages" element={<TextMessages />} />
