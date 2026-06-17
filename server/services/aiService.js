@@ -1,48 +1,70 @@
 // services/aiService.js
 const OpenAI = require('openai');
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const isAiEnhancementAvailable = () => Boolean(process.env.OPENAI_API_KEY);
+
+const getOpenAIClient = () => {
+  if (!isAiEnhancementAvailable()) {
+    return null;
+  }
+
+  return new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+};
 
 const enhanceMessage = async (messageContent, userHistory = []) => {
   try {
-    // Create a context from user's message history
-    const context = userHistory.slice(-5).map(msg => 
-      `Previous message: "${msg.content}" (Sent: ${new Date(msg.createdAt).toLocaleDateString()})`
-    ).join('\n');
+    const openai = getOpenAIClient();
+    if (!openai) {
+      throw new Error('AI enhancement is not configured');
+    }
 
-    const prompt = `
-      You are an AI assistant helping a user create meaningful messages for their future self or loved ones.
-      The user has written the following message:
-      
-      "${messageContent}"
-      
-      ${context ? `Previous messages from this user:\n${context}\n\n` : ''}
-      
-      Please enhance this message by:
-      1. Making it more poetic and emotionally resonant
-      2. Preserving the user's original voice and intent
-      3. Adding depth and meaning while keeping it personal
-      4. Making it feel like a gift from the past to the future
-      
-      Return only the enhanced message, nothing else:
-    `;
+    // Create a concise context from user's recent message history
+    const context = userHistory
+      .slice(-5)
+      .map(msg => `• "${msg.content}" (${new Date(msg.createdAt).toLocaleDateString()})`)
+      .join('\n');
+
+    const prompt = `You are an AI assistant helping users write meaningful, emotionally resonant messages to their future self or loved ones.
+
+ORIGINAL MESSAGE:
+"${messageContent}"
+
+${context ? `USER'S RECENT MESSAGE HISTORY:\n${context}\n\n` : ''}
+
+ENHANCEMENT GUIDELINES:
+1. Preserve the user's exact intent, tone, and personal voice
+2. Make it more poetic, reflective, and emotionally deep
+3. Frame it as a timeless gift from the past to the future
+4. Keep it concise, personal, and authentic
+5. Do NOT add greetings, signatures, or meta-commentary
+
+RETURN ONLY the enhanced message text. No quotes, no markdown, no explanations.`;
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4o-mini", // ✅ More reliable, faster, and cost-effective than gpt-3.5-turbo
       messages: [{ role: "user", content: prompt }],
-      max_tokens: 500,
-      temperature: 0.7
+      max_tokens: 400,
+      temperature: 0.75,
+      presence_penalty: 0.3,
+      frequency_penalty: 0.3
     });
 
-    return completion.choices[0].message.content.trim();
+    let enhanced = completion.choices[0].message.content.trim();
+    
+    // ✅ Strip markdown code blocks if OpenAI adds them accidentally
+    enhanced = enhanced.replace(/```[\s\S]*?```/g, '').trim();
+    // ✅ Remove leading/trailing quotes that sometimes appear
+    enhanced = enhanced.replace(/^["']|["']$/g, '').trim();
+    
+    return enhanced || messageContent; // Fallback to original if empty
+    
   } catch (error) {
-    console.error('AI Enhancement Error:', error);
-    // Return original message if AI enhancement fails
+    console.error('❌ AI Enhancement Error:', error.message);
+    // ✅ Safe fallback: return original message if AI fails
     return messageContent;
   }
 };
 
-module.exports = { enhanceMessage };
+module.exports = { enhanceMessage, isAiEnhancementAvailable };

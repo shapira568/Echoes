@@ -1,6 +1,7 @@
 // routes/messageRoutes.js
 const express = require('express');
 const { 
+  getAiStatus,
   createMessage, 
   getUserMessages, 
   getMessageById,
@@ -11,6 +12,8 @@ const { protect } = require('../middleware/authMiddleware');
 const router = express.Router();
 
 // All routes are protected
+router.get('/ai-status', protect, getAiStatus);
+
 router.route('/')
   .post(protect, createMessage)
   .get(protect, getUserMessages);

@@ -3,11 +3,19 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { messageAPI, uploadAPI, paymentAPI } from '../services/api';
-
+const API_ORIGIN = (process.env.REACT_APP_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
+const getMediaUrl = (url) => {
+  if (!url) return '';
+  return url.startsWith('http') ? url : `${API_ORIGIN}${url}`;
+};
 const DashboardContainer = styled.div`
   min-height: 100vh;
   background: linear-gradient(135deg, #f0f8ff 0%, #e6f7ff 100%);
   padding: 2rem;
+
+  @media (max-width: 640px) {
+    padding: 1rem;
+  }
 `;
 
 const Header = styled.header`
@@ -20,6 +28,13 @@ const Header = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  @media (max-width: 640px) {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
 `;
 
 const Logo = styled.div`
@@ -39,6 +54,11 @@ const UserInfo = styled.div`
   display: flex;
   align-items: center;
   gap: 1rem;
+
+  @media (max-width: 640px) {
+    width: 100%;
+    justify-content: space-between;
+  }
 `;
 
 const Avatar = styled.div`
@@ -107,6 +127,11 @@ const MainContent = styled.div`
   border-radius: 15px;
   box-shadow: 0 10px 30px rgba(44, 62, 80, 0.1);
   padding: 2rem;
+
+  @media (max-width: 640px) {
+    border-radius: 10px;
+    padding: 1rem;
+  }
 `;
 
 const Sidebar = styled.div`
@@ -115,6 +140,11 @@ const Sidebar = styled.div`
   box-shadow: 0 10px 30px rgba(44, 62, 80, 0.1);
   padding: 2rem;
   height: fit-content;
+
+  @media (max-width: 640px) {
+    border-radius: 10px;
+    padding: 1rem;
+  }
 `;
 
 const SectionTitle = styled.h2`
@@ -122,6 +152,11 @@ const SectionTitle = styled.h2`
   margin-bottom: 1.5rem;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid #e1e8ed;
+
+  @media (max-width: 640px) {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
 `;
 
 const MessageForm = styled.form`
@@ -338,6 +373,7 @@ function Dashboard() {
     content: '',
     messageType: 'text',
     deliveryMethod: 'date',
+    deliveryChannel: 'email',
     deliveryDate: '',
     recipient: 'self',
     aiEnhance: false,
@@ -348,6 +384,7 @@ function Dashboard() {
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [recordedBlob, setRecordedBlob] = useState(null);
+  const [aiStatus, setAiStatus] = useState({ supported: false, message: 'Checking AI support...' });
   const videoRef = useRef(null);
   const navigate = useNavigate();
 
@@ -363,6 +400,13 @@ function Dashboard() {
 
     const fetchSubscription = async () => {
       try {
+        const params = new URLSearchParams(window.location.search);
+        const paymentReference = params.get('reference') || params.get('trxref');
+        if (paymentReference) {
+          await paymentAPI.createSubscription(paymentReference);
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
         const response = await paymentAPI.getSubscription();
         setSubscription(response.data);
       } catch (error) {
@@ -370,8 +414,18 @@ function Dashboard() {
       }
     };
 
+    const fetchAiStatus = async () => {
+      try {
+        const response = await messageAPI.getAIStatus();
+        setAiStatus(response.data);
+      } catch (error) {
+        setAiStatus({ supported: false, message: 'AI enhancement is unavailable.' });
+      }
+    };
+
     fetchMessages();
     fetchSubscription();
+    fetchAiStatus();
   }, []);
 
   const handleChange = (e) => {
@@ -472,15 +526,15 @@ function Dashboard() {
       uploadFormData.append('media', fileToUpload);
       
       const response = await uploadAPI.uploadMedia(uploadFormData);
+      const uploadedMediaUrl = response.data.url;
+
       setFormData({
         ...formData,
-        mediaUrl: response.data.url
+        mediaUrl: uploadedMediaUrl
       });
-      
+
       alert('Media uploaded successfully!');
-      setMediaFile(null);
-      setRecordedBlob(null);
-      setMediaPreview('');
+      setMediaPreview(getMediaUrl(uploadedMediaUrl));
     } catch (error) {
       alert('Error uploading media');
     }
@@ -501,6 +555,7 @@ function Dashboard() {
         content: '',
         messageType: 'text',
         deliveryMethod: 'date',
+        deliveryChannel: 'email',
         deliveryDate: '',
         recipient: 'self',
         aiEnhance: false,
@@ -518,10 +573,9 @@ function Dashboard() {
   const handleUpgrade = async (plan) => {
     try {
       const response = await paymentAPI.createCheckoutSession(plan);
-      // Redirect to Stripe checkout
-      window.location.href = `https://checkout.stripe.com/pay/${response.data.sessionId}`;
+      window.location.href = response.data.authorizationUrl;
     } catch (error) {
-      alert('Error creating checkout session');
+      alert(error.response?.data?.message || 'Error creating checkout session');
     }
   };
 
@@ -540,7 +594,7 @@ const handleDeleteMessage = async (messageId) => {
   try {
     await messageAPI.deleteMessage(messageId);
     // Update the local state to remove the deleted message
-    setMessages(messages.filter(message => message._id !== messageId));
+    setMessages(messages.filter(message => (message.id || message._id) !== messageId));
     alert('Message deleted successfully!');
   } catch (error) {
     console.error('Error deleting message:', error);
@@ -657,12 +711,13 @@ const handleDeleteMessage = async (messageId) => {
                   type="checkbox"
                   name="aiEnhance"
                   checked={formData.aiEnhance}
+                  disabled={!aiStatus.supported}
                   onChange={handleChange}
                 />{' '}
                 Enhance with AI
               </Label>
               <p style={{ fontSize: '0.9rem', color: '#666', marginTop: '0.5rem' }}>
-                Our AI will make your message more poetic and meaningful
+                {aiStatus.supported ? 'Our AI will make your message more poetic and meaningful' : aiStatus.message}
               </p>
             </FormGroup>
 
@@ -681,6 +736,20 @@ const handleDeleteMessage = async (messageId) => {
               </Select>
             </FormGroup>
 
+            <FormGroup>
+              <Label htmlFor="deliveryChannel">Send By</Label>
+              <Select
+                id="deliveryChannel"
+                name="deliveryChannel"
+                value={formData.deliveryChannel}
+                onChange={handleChange}
+                required
+              >
+                <option value="email">Email</option>
+                <option value="whatsapp">WhatsApp</option>
+                <option value="sms">SMS</option>
+              </Select>
+            </FormGroup>
             {formData.deliveryMethod === 'date' && (
               <FormGroup>
                 <Label htmlFor="deliveryDate">Delivery Date</Label>
@@ -698,12 +767,12 @@ const handleDeleteMessage = async (messageId) => {
             <FormGroup>
               <Label htmlFor="recipient">Recipient</Label>
               <Input
-                type="email"
+                type={formData.deliveryChannel === 'email' ? 'email' : 'tel'}
                 id="recipient"
                 name="recipient"
                 value={formData.recipient}
                 onChange={handleChange}
-                placeholder="Enter email or 'self'"
+                placeholder={formData.deliveryChannel === 'email' ? "Enter email or 'self'" : 'Enter phone number with country code, e.g. +2348012345678'}
                 required
               />
             </FormGroup>
@@ -715,11 +784,15 @@ const handleDeleteMessage = async (messageId) => {
 
           <MessageList>
             <SectionTitle>Your Messages</SectionTitle>
-            {messages.map(message => (
-              <MessageCard key={message._id}>
+            {messages.map(message => {
+              const messageId = message.id || message._id;
+
+              return (
+              <MessageCard key={messageId}>
                 <h3>{message.content.substring(0, 50)}...</h3>
                 <p><strong>Type:</strong> {message.messageType}</p>
                 <p><strong>Delivery:</strong> {message.deliveryMethod} - {message.deliveryDate}</p>
+                <p><strong>Send By:</strong> {message.deliveryChannel || 'email'}</p>
                 <p><strong>Recipient:</strong> {message.recipient}</p>
                 <p><strong>Status:</strong> {message.status}</p>
                 <small>Created: {new Date(message.createdAt).toLocaleDateString()}</small>
@@ -727,23 +800,24 @@ const handleDeleteMessage = async (messageId) => {
                 {message.mediaUrl && (
                   <div style={{ marginTop: '10px' }}>
                     {message.messageType === 'video' ? (
-                      <video controls width="200" src={message.mediaUrl} />
+                      <video controls width="200" src={getMediaUrl(message.mediaUrl)} />
                     ) : message.messageType === 'voice' ? (
-                      <audio controls src={message.mediaUrl} />
+                      <audio controls src={getMediaUrl(message.mediaUrl)} />
                     ) : null}
                   </div>
                 )}
                 {/* --- Add the Delete Button Here --- */}
 <div style={{ marginTop: '10px' }}>
   <DeleteButton
-    onClick={() => handleDeleteMessage(message._id)}
+    onClick={() => handleDeleteMessage(messageId)}
   >
     <i className="fas fa-trash"></i> Delete
   </DeleteButton>
 </div>
 {/* --- End of Delete Button --- */}
               </MessageCard>
-            ))}
+              );
+            })}
           </MessageList>
         </MainContent>
 
@@ -757,25 +831,25 @@ const handleDeleteMessage = async (messageId) => {
               <PricingPlans>
                 <PlanCard>
                   <h3>Premium</h3>
-                  <div className="price">$9.99/month</div>
+                  <div className="price">NGN 5,000/month</div>
                   <ul>
                     <li>Unlimited messages</li>
                     <li>Voice messages</li>
-                    <li>AI enhancement</li>
+                    <li>{aiStatus.supported ? 'AI enhancement' : 'AI enhancement when configured'}</li>
                     <li>Priority delivery</li>
                   </ul>
-                  <button onClick={() => handleUpgrade('premium')}>Upgrade</button>
+                  <button onClick={() => handleUpgrade('premium')}>Pay with Paystack</button>
                 </PlanCard>
                 <PlanCard>
                   <h3>Pro</h3>
-                  <div className="price">$19.99/month</div>
+                  <div className="price">NGN 15,000/month</div>
                   <ul>
                     <li>All Premium features</li>
                     <li>Video messages</li>
-                    <li>Advanced AI</li>
+                    <li>{aiStatus.supported ? 'Advanced AI' : 'Advanced AI when configured'}</li>
                     <li>Custom triggers</li>
                   </ul>
-                  <button onClick={() => handleUpgrade('pro')}>Upgrade</button>
+                  <button onClick={() => handleUpgrade('pro')}>Pay with Paystack</button>
                 </PlanCard>
               </PricingPlans>
             </>
@@ -784,6 +858,30 @@ const handleDeleteMessage = async (messageId) => {
           <SectionTitle>Quick Stats</SectionTitle>
           <p>You have <strong>{messages.length}</strong> messages saved</p>
           <p>Next delivery: <strong>December 25, 2025</strong></p>
+
+          <SectionTitle>Member Wellness</SectionTitle>
+          <p>Open mood cataloging, symptom tracking, journals, triggers, medication, reminders, and visual trends.</p>
+          <Button className="primary" onClick={() => navigate('/mental-health')}>
+            Wellness Workspace
+          </Button>
+
+          <SectionTitle>AI Scheduling</SectionTitle>
+          <p>Prioritize tasks, review workload, track deadlines, and get smart planning suggestions.</p>
+          <Button className="primary" onClick={() => navigate('/ai-dashboard')}>
+            AI Dashboard
+          </Button>
+
+          <SectionTitle>Emotion Flow</SectionTitle>
+          <p>Run the full mood check-in flow with tags, timeline, analytics, and intervention flags.</p>
+          <Button className="primary" onClick={() => navigate('/emotion-flow')}>
+            Emotion Flow
+          </Button>
+
+          <SectionTitle>System Overview</SectionTitle>
+          <p>Review ERD coverage, use cases, flowchart, legacy contacts, audit logs, and admin metrics.</p>
+          <Button className="primary" onClick={() => navigate('/system-overview')}>
+            System Overview
+          </Button>
           
           <SectionTitle>Recent Activity</SectionTitle>
           <p>No recent activity</p>
@@ -794,3 +892,4 @@ const handleDeleteMessage = async (messageId) => {
 }
 
 export default Dashboard;
+

@@ -11,6 +11,11 @@ const LoginContainer = styled.div`
   justify-content: center;
   background: linear-gradient(135deg, #f0f8ff 0%, #e6f7ff 100%);
   padding: 2rem;
+
+  @media (max-width: 520px) {
+    align-items: flex-start;
+    padding: 1rem;
+  }
 `;
 
 const LoginForm = styled.form`
@@ -20,6 +25,11 @@ const LoginForm = styled.form`
   box-shadow: 0 10px 30px rgba(44, 62, 80, 0.1);
   width: 100%;
   max-width: 450px;
+
+  @media (max-width: 520px) {
+    border-radius: 10px;
+    padding: 1.25rem;
+  }
 `;
 
 const Logo = styled.div`

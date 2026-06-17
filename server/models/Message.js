@@ -26,6 +26,13 @@ const Message = sequelize.define('Message', {
   deliveryDate: {
     type: DataTypes.DATE
   },
+  // ✅ NEW: Delivery channel selection
+  deliveryChannel: {
+    type: DataTypes.STRING,
+    defaultValue: 'email',
+    allowNull: false,
+    validate: { isIn: [['email', 'whatsapp', 'sms']] }
+  },
   lifeEvent: {
     type: DataTypes.STRING
   },
@@ -53,3 +60,4 @@ const Message = sequelize.define('Message', {
 }, { timestamps: true });
 
 module.exports = Message;
+

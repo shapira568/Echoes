@@ -127,19 +127,19 @@ function PremiumPlan() {
         
         <PlanCard>
           <h2>Enhanced Experience</h2>
-          <div className="price">$9.99/month</div>
+          <div className="price">NGN 5,000/month</div>
           <p>Unlock all features for unlimited meaningful messages</p>
           
           <ul>
             <li>Unlimited messages</li>
             <li>Voice & text messages</li>
-            <li>AI enhancement</li>
+            <li>AI enhancement when configured</li>
             <li>Advanced scheduling</li>
             <li>Priority delivery</li>
           </ul>
           
           <Link to="/signup">
-            <Button className="primary">Try Free for 14 Days</Button>
+            <Button className="primary">Continue to Dashboard</Button>
           </Link>
         </PlanCard>
       </Content>

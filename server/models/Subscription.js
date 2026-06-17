@@ -31,6 +31,12 @@ const Subscription = sequelize.define('Subscription', {
   },
   stripeSubscriptionId: {
     type: DataTypes.STRING
+  },
+  paymentProvider: {
+    type: DataTypes.STRING
+  },
+  paymentReference: {
+    type: DataTypes.STRING
   }
 }, { timestamps: true });
 

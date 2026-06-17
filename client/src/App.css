@@ -7,5 +7,14 @@
 
 body {
    background: linear-gradient(135deg, #f0f8ff 0%, #e6f7ff 100%);
+   overflow-x: hidden;
   
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  max-width: 100%;
 }

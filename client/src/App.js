@@ -5,6 +5,10 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
+import MentalHealth from './pages/MentalHealth';
+import AIDashboard from './pages/AIDashboard';
+import EmotionFlow from './pages/EmotionFlow';
+import SystemOverview from './pages/SystemOverview';
 import './App.css'
 
 // Features pages
@@ -42,6 +46,10 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/mental-health" element={<MentalHealth />} />
+          <Route path="/ai-dashboard" element={<AIDashboard />} />
+          <Route path="/emotion-flow" element={<EmotionFlow />} />
+          <Route path="/system-overview" element={<SystemOverview />} />
           
           {/* Features */}
           <Route path="/features/text-messages" element={<TextMessages />} />

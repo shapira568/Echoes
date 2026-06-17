@@ -127,7 +127,7 @@ function FreePlan() {
         
         <PlanCard>
           <h2>Get Started with Echoes</h2>
-          <div className="price">$0/month</div>
+          <div className="price">NGN 0/month</div>
           <p>Perfect for trying out Echoes and sending your first messages</p>
           
           <ul>

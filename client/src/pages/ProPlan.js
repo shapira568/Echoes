@@ -127,20 +127,20 @@ function ProPlan() {
         
         <PlanCard>
           <h2>Ultimate Experience</h2>
-          <div className="price">$19.99/month</div>
+          <div className="price">NGN 15,000/month</div>
           <p>Everything you need for a complete legacy preservation experience</p>
           
           <ul>
             <li>Everything in Premium</li>
             <li>Video messages</li>
-            <li>Advanced AI</li>
+            <li>Advanced AI when configured</li>
             <li>Custom triggers</li>
             <li>Legacy vault</li>
             <li>Priority support</li>
           </ul>
           
           <Link to="/signup">
-            <Button className="primary">Try Free for 14 Days</Button>
+            <Button className="primary">Continue to Dashboard</Button>
           </Link>
         </PlanCard>
       </Content>

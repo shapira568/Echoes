@@ -97,11 +97,23 @@ const Header = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
   box-shadow: 0 2px 15px rgba(44, 62, 80, 0.1);
   position: fixed;
   width: 100%;
   top: 0;
   z-index: 100;
+  box-sizing: border-box;
+
+  @media (max-width: 992px) {
+    padding: 0.9rem 1.5rem;
+  }
+
+  @media (max-width: 768px) {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    padding: 0.75rem 1rem;
+  }
 `;
 
 const Logo = styled.div`
@@ -111,6 +123,7 @@ const Logo = styled.div`
   font-size: 1.8rem;
   font-weight: 700;
   color: #2c5aa0;
+  white-space: nowrap;
 
   i {
     color: #4a90e2;
@@ -122,6 +135,10 @@ const Logo = styled.div`
       100% { transform: translateY(0px); }
     }
   }
+
+  @media (max-width: 768px) {
+    font-size: 1.45rem;
+  }
 `;
 
 const Nav = styled.nav`
@@ -129,6 +146,8 @@ const Nav = styled.nav`
     display: flex;
     list-style: none;
     gap: 2rem;
+    margin: 0;
+    padding: 0;
   }
 
   a {
@@ -138,10 +157,39 @@ const Nav = styled.nav`
     transition: all 0.3s ease;
     padding: 0.5rem 1rem;
     border-radius: 30px;
+    white-space: nowrap;
 
     &:hover, &.active {
       background: #a3d5ff;
       color: #2c5aa0;
+    }
+  }
+
+  @media (max-width: 992px) {
+    ul {
+      gap: 0.75rem;
+    }
+
+    a {
+      padding: 0.45rem 0.7rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    padding-top: 0.25rem;
+
+    ul {
+      justify-content: center;
+      gap: 0.35rem;
+      min-width: max-content;
+    }
+
+    a {
+      font-size: 0.9rem;
+      padding: 0.4rem 0.65rem;
     }
   }
 `;
@@ -149,6 +197,12 @@ const Nav = styled.nav`
 const AuthButtons = styled.div`
   display: flex;
   gap: 1rem;
+  align-items: center;
+
+  @media (max-width: 768px) {
+    gap: 0.5rem;
+    margin-left: auto;
+  }
 `;
 
 const Button = styled.button`
@@ -159,6 +213,11 @@ const Button = styled.button`
   transition: all 0.3s ease;
   border: none;
   font-size: 1rem;
+
+  @media (max-width: 768px) {
+    padding: 0.55rem 0.85rem;
+    font-size: 0.9rem;
+  }
 
   &.primary {
     background: #4a90e2;
@@ -184,7 +243,7 @@ const Button = styled.button`
 `;
 
 const Hero = styled.section`
-  padding: 5rem 5%;
+  padding: 7rem 5% 5rem;
   display: flex;
   align-items: center;
   min-height: 80vh;
@@ -192,6 +251,10 @@ const Hero = styled.section`
   @media (max-width: 992px) {
     flex-direction: column;
     text-align: center;
+  }
+
+  @media (max-width: 768px) {
+    padding-top: 10rem;
   }
 `;
 
@@ -704,7 +767,7 @@ function Home() {
         <FeaturesGrid>
           <FeatureCard to="/pricing/free">
             <h3>Free</h3>
-            <p style={{ fontSize: '2rem', fontWeight: 'bold', color: '#4a90e2' }}>$0/month</p>
+            <p style={{ fontSize: '2rem', fontWeight: 'bold', color: '#4a90e2' }}>NGN 0/month</p>
             <ul style={{ textAlign: 'left', marginBottom: '1rem' }}>
               <li>✓ 5 messages per month</li>
               <li>✓ Text messages only</li>
@@ -715,11 +778,11 @@ function Home() {
           </FeatureCard>
           <FeatureCard to="/pricing/premium">
             <h3>Premium</h3>
-            <p style={{ fontSize: '2rem', fontWeight: 'bold', color: '#4a90e2' }}>$9.99/month</p>
+            <p style={{ fontSize: '2rem', fontWeight: 'bold', color: '#4a90e2' }}>NGN 5,000/month</p>
             <ul style={{ textAlign: 'left', marginBottom: '1rem' }}>
               <li>✓ Unlimited messages</li>
               <li>✓ Voice & text messages</li>
-              <li>✓ AI enhancement</li>
+              <li>✓ AI enhancement when configured</li>
               <li>✓ Advanced scheduling</li>
               <li>✓ Priority delivery</li>
             </ul>
@@ -727,11 +790,11 @@ function Home() {
           </FeatureCard>
           <FeatureCard to="/pricing/pro">
             <h3>Pro</h3>
-            <p style={{ fontSize: '2rem', fontWeight: 'bold', color: '#4a90e2' }}>$19.99/month</p>
+            <p style={{ fontSize: '2rem', fontWeight: 'bold', color: '#4a90e2' }}>NGN 15,000/month</p>
             <ul style={{ textAlign: 'left', marginBottom: '1rem' }}>
               <li>✓ Everything in Premium</li>
               <li>✓ Video messages</li>
-              <li>✓ Advanced AI</li>
+              <li>✓ Advanced AI when configured</li>
               <li>✓ Custom triggers</li>
               <li>✓ Legacy vault</li>
               <li>✓ Priority support</li>
@@ -793,7 +856,7 @@ function Home() {
           </FooterColumn>
         </FooterContent>
         <Copyright>
-          <p>&copy; 2025 Echoes. All rights reserved. Flowing through time, one message at a time.</p>
+          <p>&copy; 2026 Echoes. All rights reserved. Flowing through time, one message at a time.</p>
         </Copyright>
       </Footer>
     </HomeContainer>

@@ -5,5 +5,8 @@
     "start:server": "cd server && npm start",
     "start:client": "cd client && npm start",
     "install:all": "cd server && npm install && cd ../client && npm install"
+  },
+  "dependencies": {
+    "twilio": "^6.0.2"
   }
 }

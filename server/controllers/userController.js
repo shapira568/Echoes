@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const { recordAudit } = require('../utils/audit');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'echoes_secret', {
@@ -17,11 +18,13 @@ exports.registerUser = async (req, res) => {
     }
 
     const user = await User.create({ name, email, password });
+    await recordAudit(req, 'user_registered', user.id);
 
     res.status(201).json({
       id: user.id,
       name: user.name,
       email: user.email,
+      role: user.role,
       token: generateToken(user.id)
     });
   } catch (error) {
@@ -35,10 +38,12 @@ exports.loginUser = async (req, res) => {
 
     const user = await User.findOne({ where: { email } });
     if (user && (await user.comparePassword(password))) {
+      await recordAudit(req, 'user_login', user.id);
       res.json({
         id: user.id,
         name: user.name,
         email: user.email,
+        role: user.role,
         token: generateToken(user.id)
       });
     } else {
