@@ -36,12 +36,41 @@ import PrivacyPolicy from './pages/PrivacyPolicy'; // Fixed typo
 import FreePlan from './pages/FreePlan';
 import PremiumPlan from './pages/PremiumPlan';
 import ProPlan from './pages/ProPlan';
+import { authAPI } from './services/api';
 
 function ProtectedRoute({ children }) {
   const location = useLocation();
-  const token = localStorage.getItem('token');
+  const [status, setStatus] = React.useState('checking');
 
-  if (!token) {
+  React.useEffect(() => {
+    let active = true;
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      setStatus('unauthorized');
+      return;
+    }
+
+    authAPI.getCurrentUser()
+      .then(() => {
+        if (active) setStatus('authorized');
+      })
+      .catch(() => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        if (active) setStatus('unauthorized');
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (status === 'checking') {
+    return null;
+  }
+
+  if (status === 'unauthorized') {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 

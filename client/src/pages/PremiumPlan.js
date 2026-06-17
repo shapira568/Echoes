@@ -117,8 +117,8 @@ function PremiumPlan() {
           <i className="fas fa-water"></i>
           <span>Echoes</span>
         </Logo>
-        <Link to="/dashboard">
-          <Button className="primary">Go to Dashboard</Button>
+        <Link to="/signup">
+          <Button className="primary">Get Started</Button>
         </Link>
       </Header>
 
@@ -139,7 +139,7 @@ function PremiumPlan() {
           </ul>
           
           <Link to="/signup">
-            <Button className="primary">Continue to Dashboard</Button>
+            <Button className="primary">Continue to Sign Up</Button>
           </Link>
         </PlanCard>
       </Content>
@@ -148,3 +148,4 @@ function PremiumPlan() {
 }
 
 export default PremiumPlan;
+

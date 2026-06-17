@@ -202,8 +202,8 @@ function Webinars() {
           <i className="fas fa-water"></i>
           <span>Echoes</span>
         </Logo>
-        <Link to="/dashboard">
-          <Button className="primary">Go to Dashboard</Button>
+        <Link to="/signup">
+          <Button className="primary">Get Started</Button>
         </Link>
       </Header>
       

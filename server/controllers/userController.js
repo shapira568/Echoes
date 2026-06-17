@@ -58,6 +58,10 @@ exports.loginUser = async (req, res) => {
   }
 };
 
+exports.getCurrentUser = async (req, res) => {
+  res.json(req.user);
+};
+
 exports.googleAuth = async (req, res) => {
   try {
     const { credential } = req.body;
