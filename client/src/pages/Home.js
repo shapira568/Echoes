@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 
@@ -239,6 +239,229 @@ const Button = styled.button`
       background: #4a90e2;
       color: white;
     }
+  }
+`;
+
+const DemoOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(15, 35, 62, 0.72);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+`;
+
+const DemoModal = styled.div`
+  width: min(960px, 100%);
+  max-height: min(760px, 92vh);
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 28px 80px rgba(15, 35, 62, 0.35);
+`;
+
+const DemoHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.4rem 1.5rem;
+  border-bottom: 1px solid #e6edf5;
+
+  h2 {
+    color: #2c5aa0;
+    margin: 0 0 0.35rem;
+  }
+
+  p {
+    color: #64748b;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 640px) {
+    padding: 1rem;
+  }
+`;
+
+const CloseDemoButton = styled.button`
+  width: 42px;
+  height: 42px;
+  border: 1px solid #d8e4f0;
+  border-radius: 50%;
+  background: #f8fbff;
+  color: #2c5aa0;
+  cursor: pointer;
+  font-size: 1.2rem;
+  flex: 0 0 auto;
+
+  &:hover {
+    background: #eaf4ff;
+  }
+`;
+
+const DemoBody = styled.div`
+  display: grid;
+  grid-template-columns: 1.35fr 0.85fr;
+  gap: 1.5rem;
+  padding: 1.5rem;
+
+  @media (max-width: 820px) {
+    grid-template-columns: 1fr;
+  }
+
+  @media (max-width: 640px) {
+    padding: 1rem;
+  }
+`;
+
+const DemoScreen = styled.div`
+  border: 1px solid #d8e4f0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f8fbff;
+`;
+
+const DemoToolbar = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: #102a4c;
+  color: white;
+
+  span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #7dd3fc;
+  }
+
+  strong {
+    margin-left: 0.45rem;
+    font-size: 0.92rem;
+  }
+`;
+
+const DemoDashboard = styled.div`
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+`;
+
+const DemoStats = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const DemoStat = styled.div`
+  background: white;
+  border: 1px solid #e6edf5;
+  border-radius: 8px;
+  padding: 0.9rem;
+
+  span {
+    color: #64748b;
+    display: block;
+    font-size: 0.82rem;
+    margin-bottom: 0.35rem;
+  }
+
+  strong {
+    color: #2c5aa0;
+    font-size: 1.4rem;
+  }
+`;
+
+const DemoComposer = styled.div`
+  background: white;
+  border: 1px solid #e6edf5;
+  border-radius: 8px;
+  padding: 1rem;
+
+  h3 {
+    color: #2c5aa0;
+    margin: 0 0 0.75rem;
+  }
+`;
+
+const DemoTextarea = styled.div`
+  border: 2px solid #d8e4f0;
+  border-radius: 8px;
+  min-height: 96px;
+  padding: 0.85rem;
+  color: #64748b;
+  line-height: 1.5;
+  background: #fbfdff;
+`;
+
+const DemoTimeline = styled.div`
+  display: grid;
+  gap: 0.75rem;
+`;
+
+const DemoTimelineItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  background: white;
+  border: 1px solid #e6edf5;
+  border-radius: 8px;
+  padding: 0.85rem;
+  color: #2c3e50;
+
+  span {
+    color: #4a90e2;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+`;
+
+const DemoSteps = styled.div`
+  display: grid;
+  gap: 0.8rem;
+`;
+
+const DemoStep = styled.button`
+  text-align: left;
+  border: 1px solid ${({ $active }) => ($active ? '#4a90e2' : '#d8e4f0')};
+  background: ${({ $active }) => ($active ? '#eef6ff' : '#ffffff')};
+  border-radius: 10px;
+  padding: 1rem;
+  cursor: pointer;
+
+  h3 {
+    color: #2c5aa0;
+    margin: 0 0 0.4rem;
+    font-size: 1rem;
+  }
+
+  p {
+    color: #64748b;
+    margin: 0;
+    line-height: 1.45;
+  }
+`;
+
+const DemoActions = styled.div`
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0 1.5rem 1.5rem;
+
+  a {
+    text-decoration: none;
+  }
+
+  @media (max-width: 640px) {
+    padding: 0 1rem 1rem;
   }
 `;
 
@@ -594,6 +817,23 @@ const Copyright = styled.div`
 
 // Main Component
 function Home() {
+  const [showDemo, setShowDemo] = useState(false);
+  const [activeDemoStep, setActiveDemoStep] = useState(0);
+  const demoSteps = [
+    {
+      title: 'Create a message',
+      body: 'Write a message, record audio, or upload video for your future self or someone you love.'
+    },
+    {
+      title: 'Choose the moment',
+      body: 'Schedule delivery by date, life event, or emotional trigger, then pick email, WhatsApp, or SMS.'
+    },
+    {
+      title: 'Receive the echo',
+      body: 'Echoes delivers your message with your media attached or linked when the time arrives.'
+    }
+  ];
+
   return (
     <HomeContainer>
       <RiverContainer>
@@ -637,7 +877,7 @@ function Home() {
             <Link to="/signup">
               <Button className="primary">Create Your First Message</Button>
             </Link>
-            <Button className="outline">Watch Demo</Button>
+            <Button className="outline" type="button" onClick={() => setShowDemo(true)}>Watch Demo</Button>
           </HeroButtons>
         </HeroContent>
         <HeroImage>
@@ -646,6 +886,84 @@ function Home() {
           </MessageBottle>
         </HeroImage>
       </Hero>
+
+      {showDemo && (
+        <DemoOverlay role="dialog" aria-modal="true" aria-labelledby="demo-title">
+          <DemoModal>
+            <DemoHeader>
+              <div>
+                <h2 id="demo-title">Watch Echoes Demo</h2>
+                <p>A quick preview of creating, scheduling, and receiving a future message.</p>
+              </div>
+              <CloseDemoButton type="button" aria-label="Close demo" onClick={() => setShowDemo(false)}>
+                <i className="fas fa-times"></i>
+              </CloseDemoButton>
+            </DemoHeader>
+
+            <DemoBody>
+              <DemoScreen>
+                <DemoToolbar>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <strong>Echoes Dashboard Preview</strong>
+                </DemoToolbar>
+                <DemoDashboard>
+                  <DemoStats>
+                    <DemoStat>
+                      <span>Total messages</span>
+                      <strong>24</strong>
+                    </DemoStat>
+                    <DemoStat>
+                      <span>Pending</span>
+                      <strong>8</strong>
+                    </DemoStat>
+                    <DemoStat>
+                      <span>Delivered</span>
+                      <strong>16</strong>
+                    </DemoStat>
+                  </DemoStats>
+                  <DemoComposer>
+                    <h3>{demoSteps[activeDemoStep].title}</h3>
+                    <DemoTextarea>{demoSteps[activeDemoStep].body}</DemoTextarea>
+                  </DemoComposer>
+                  <DemoTimeline>
+                    <DemoTimelineItem>
+                      <strong>Graduation video message</strong>
+                      <span>May 20</span>
+                    </DemoTimelineItem>
+                    <DemoTimelineItem>
+                      <strong>Birthday voice note</strong>
+                      <span>Jun 12</span>
+                    </DemoTimelineItem>
+                  </DemoTimeline>
+                </DemoDashboard>
+              </DemoScreen>
+
+              <DemoSteps>
+                {demoSteps.map((step, index) => (
+                  <DemoStep
+                    key={step.title}
+                    type="button"
+                    $active={activeDemoStep === index}
+                    onClick={() => setActiveDemoStep(index)}
+                  >
+                    <h3>{index + 1}. {step.title}</h3>
+                    <p>{step.body}</p>
+                  </DemoStep>
+                ))}
+              </DemoSteps>
+            </DemoBody>
+
+            <DemoActions>
+              <Link to="/signup" onClick={() => setShowDemo(false)}>
+                <Button className="primary">Start Now</Button>
+              </Link>
+              <Button className="outline" type="button" onClick={() => setShowDemo(false)}>Close Demo</Button>
+            </DemoActions>
+          </DemoModal>
+        </DemoOverlay>
+      )}
 
       <FeaturesSection id="features">
         <SectionTitle>
