@@ -77,6 +77,8 @@ Reminder.belongsTo(Medication, { foreignKey: 'medicationId', as: 'medication' })
 const app = express();
 const PORT = process.env.PORT || 5000;
 let dbReady = false;
+let databaseRetryTimer;
+const databaseRetryMs = Number(process.env.DB_CONNECT_RETRY_MS || 30000);
 
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:3000',
@@ -91,8 +93,23 @@ app.get('/', (req, res) => {
 });
 
 app.get('/api/health', (req, res) => {
-  res.json({ ok: true, database: dbReady ? 'ready' : 'starting' });
+  res.status(dbReady ? 200 : 503).json({
+    ok: dbReady,
+    database: dbReady ? 'ready' : 'unavailable'
+  });
 });
+
+const requireDatabase = (req, res, next) => {
+  if (dbReady) {
+    return next();
+  }
+
+  return res.status(503).json({
+    message: 'The database is temporarily unavailable. Please try again shortly.'
+  });
+};
+
+app.use('/api', requireDatabase);
 
 // ==================== ✅ EXISTING ROUTES ====================
 const userRoutes = require('./routes/userRoutes');
@@ -162,6 +179,9 @@ const syncDatabase = async () => {
     console.log('✅ PostgreSQL connected and tables synced');
     startDeliveryCron();
   } catch (err) {
+    dbReady = false;
+    clearTimeout(databaseRetryTimer);
+    databaseRetryTimer = setTimeout(syncDatabase, databaseRetryMs);
     console.error('❌ PostgreSQL connection failed:', err.message);
   }
 };
